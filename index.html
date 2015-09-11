@@ -1,0 +1,109 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Count Down Timer</title>
+  </head>
+  <body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.2/react.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
+    <script type="text/jsx">
+    /**
+     * Label component which just displays the given
+     * text
+     */
+    var Label = React.createClass({
+      propTypes: {
+        prefixText: React.PropTypes.string,
+        actualText: React.PropTypes.string
+      },
+      // returns state data
+      getInitialState: function() {
+        return {actualText: '', prefixText: '', color:{color:this.getRandomColor()}};
+      },
+      getRandomColor: function() {
+        var letters = '0123456789ABCDEF'.split('');
+        var color = '#';
+        for (var i = 0; i < 6; i++ ) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+      },
+      // called on receiving the props
+      componentWillReceiveProps: function(nextprops) {
+        this.props = nextprops;
+        this.setState(this.props);
+        this.setState({color: {color:this.getRandomColor()}});
+      },
+      render: function() {
+        return (
+          <div style={this.state.color}>
+            {this.state.prefixText} {this.state.actualText}
+          </div>
+        );
+      }
+    });
+    /**
+     * Timer component which does timer functionalities and
+     * render the child component
+     */
+    var Timer = React.createClass({
+      propTypes: {
+        time: React.PropTypes.number.isRequired
+      },
+      componentDidMount: function() {
+        var that = this;
+        setInterval(function() {
+          that.tick(that);
+        }, 1000);
+      },
+      getInitialState: function() {
+        return {timedown: this.props.time, text: 'your count down started', prefix: 'oh!'};
+      },
+      tick: function(current) {
+        current.state.timedown -= 1000;
+        if(current.state.timedown > -1) {
+          switch (current.state.timedown) {
+            case 0:
+                current.state.text = "Your timer stopped";
+                current.state.prefix = "oh no";
+              break;
+            case 1000:
+                current.state.text = "Your timer going to stop in a minute";
+                current.state.prefix = "Make it fast";
+              break;
+            case 2000:
+                current.state.text = "You are very near";
+                current.state.prefix = "Hurry up!";
+              break;
+            default:
+                current.state.text = "there is only " + this.state.minutes + " minutes left";
+                current.state.prefix = "come on...";
+              break;
+          }
+          var seconds = Math.floor((current.state.timedown/1000) % 60);
+          var minutes = Math.floor((current.state.timedown/1000) / 60);
+          var hours = Math.floor((current.state.timedown/1000) / (60 * 60));
+          current.setState({hours: hours, minutes: minutes, seconds: seconds});
+        }
+      },
+      render: function() {
+        return (
+          <div>
+            <p>{this.state.hours}:{this.state.minutes}:{this.state.seconds}</p>
+            <p><Label actualText={this.state.text} prefixText={this.state.prefix} /></p>
+          </div>
+        );
+      }
+    });
+    /**
+     * rendering component inside
+     * body
+     */
+    React.render(
+      <Timer time={480000} />,
+      document.body
+    );
+    </script>
+  </body>
+</html>
